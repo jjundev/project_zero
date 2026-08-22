@@ -44,7 +44,11 @@ def main():
     check("REF1", "SKILL.md가 가리키는 references 전부 실재", not missing, f"없음: {missing}")
 
     # --- 종료 정의 (Task 2) ---
-    check("T2a", "종료를 설계 변화로 잰다", "설계가 2라운드 연속 안 바뀌" in skill)
+    check("T2a", "종료 정의가 세 조건을 한자리에서 말한다",
+          "**종료 = 아래 셋을 다 만족하는 것.**" in skill
+          and "설계가 **2라운드 연속** 안 바뀐다" in skill
+          and "적어도 한 번은 실제로 바뀌었다" in skill
+          and "새로 생기지 않았다" in skill)
     check("T2b", "옛 종료 정의(새 번호 2라운드 연속) 제거됨",
           "새 번호가 **2라운드 연속** 하나도 안 붙는 것" not in skill)
     check("T2c", "사문 규칙(3라운드 전 수렴 선언 금지) 제거됨",
@@ -66,8 +70,9 @@ def main():
     check("T2n", "안고침·사장님몫이 생긴 라운드는 조용한 라운드가 아님",
           '그 라운드는 "없음"으로 세지 않는다' in skill)
     check("T2o", "사장님몫도 사유 기록을 요구", "왜 사장님 몫인지 한 줄을 반드시 적고" in skill)
-    check("T2p", "outputs.md 종료 조건이 브레이크 반영본",
-          "종료 조건은 셋을 다 만족해야 한다" in out)
+    check("T2p", "outputs.md가 종료 조건을 따로 말하지 않음(진실은 SKILL.md 한 곳)",
+          '2라운드 연속 "없음"이면 끝난다' not in out
+          and "종료 조건은 셋을 다 만족해야 한다" not in out)
 
     # --- 반론·전사·카드 (Task 3) ---
     check("T3a", "제약 공격 규칙이 렌즈뿐 아니라 사장님 관점까지",
@@ -113,6 +118,27 @@ def main():
     for label, text in (("SKILL.md", skill), ("framework.md", fw),
                         ("outputs.md", out), ("guardrails.md", grd)):
         check(f"X-{label}", f"{label}에 미정의 용어 '박스' 없음", "박스" not in text)
+
+    # --- 전역 제약 ---
+    n_lines = len(skill.splitlines())
+    check("G1", "SKILL.md 500줄 이내", n_lines <= 500, f"{n_lines}줄")
+    m = re.search(r"^description:\s*(.+)$", skill, re.M)
+    check("G2", "description 365자 고정", m and len(m.group(1).strip()) == 365,
+          f"{len(m.group(1).strip())}자" if m else "없음")
+
+    import zipfile
+    z = ROOT / "dist" / "moebius-loop.zip"
+    if not z.exists():
+        check("G3", "배포 zip이 라이브 파일과 동일", False, "zip 없음")
+    else:
+        with zipfile.ZipFile(z) as zf:
+            names = {n for n in zf.namelist() if not n.endswith("/")}
+            expected = {"moebius-loop/SKILL.md"} | {
+                f"moebius-loop/references/{f.name}" for f in (SK / "references").glob("*.md")}
+            same = names == expected and all(
+                zf.read(n) == (SK.parent / n).read_bytes() for n in names)
+        check("G3", "배포 zip이 라이브 파일과 바이트 동일", same,
+              f"zip={sorted(names)}")
 
     failed = [r for r in results if not r[2]]
     for cid, desc, ok, detail in results:
