@@ -94,7 +94,12 @@ def main():
     check("T5b", "복원 점검이 0단계보다 앞", 
           ("## 복원 점검" in skill and "### 0. 입력" in skill
            and skill.index("## 복원 점검") < skill.index("### 0. 입력")))
-    check("T5c", "이어하기 블록 첫 줄에 경고", "⚠️ 새 대화창이면 이 블록만으로는 복원 안 됩니다" in skill)
+    _bstart = skill.find("━━━ 이어하기 ━━━")
+    _warn = skill.find("⚠️ 새 대화창이면 이 블록만으로는 복원")
+    _topic = skill.find("\n주제: ")
+    check("T5c", "경고가 이어하기 블록 안, 주제 줄보다 앞에 있음",
+          -1 < _bstart < _warn < _topic,
+          f"block={_bstart} warn={_warn} topic={_topic}")
     check("T5d", "위조 금지 경계선 명시", "지어내지 않는다" in skill)
     check("T5e", "framework §13에 단서", "전달만 안 된 것" in fw)
     check("T5f", "outputs.md 트립와이어", "인용할 원문이 손에 없으면" in out)
