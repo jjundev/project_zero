@@ -51,7 +51,8 @@ def main():
           "3라운드를 돌기 전에는 수렴을 선언하지 않는다" not in skill)
     check("T2d", "대장 상태에 재개 있음", "재개" in skill and "재개" in out)
     check("T2e", "대장 상태에 사장님몫 있음", "사장님몫" in skill)
-    check("T2f", "등급은 보고용이며 종료 판정에 안 씀", "종료 판정에는 쓰지 않는다" in skill)
+    check("T2f", "자기채점 한계를 규칙이 아니라 사장님 눈으로 푼다고 명시",
+          "자기채점을 이기는 건 규칙이 아니라 사장님 눈이다" in skill)
     check("T2g", "렌즈 미충족은 지적이 아니라고 명시", "렌즈 미충족은 지적이 아니다" in skill)
     check("T2h", "라운드별 설계 변화 기록 지시", "설계 변화:" in skill)
     check("T2i", "outputs.md 대장에 등급 열", "등급" in out)
@@ -62,6 +63,11 @@ def main():
     check("T2l", "대장 상태에 안고침 있음", "안고침" in skill and "안고침" in out)
     check("T2m", "1차 기획 라운드는 계수에서 제외",
           "1차 기획을 만든 라운드는 계산에서 뺀다" in skill)
+    check("T2n", "안고침·사장님몫이 생긴 라운드는 조용한 라운드가 아님",
+          '그 라운드는 "없음"으로 세지 않는다' in skill)
+    check("T2o", "사장님몫도 사유 기록을 요구", "왜 사장님 몫인지 한 줄을 반드시 적고" in skill)
+    check("T2p", "outputs.md 종료 조건이 브레이크 반영본",
+          "종료 조건은 셋을 다 만족해야 한다" in out)
 
     # --- 반론·전사·카드 (Task 3) ---
     check("T3a", "제약 공격 규칙이 렌즈뿐 아니라 사장님 관점까지",
