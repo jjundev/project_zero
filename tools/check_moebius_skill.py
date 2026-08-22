@@ -81,7 +81,10 @@ def main():
     check("T4a", "판별 문장이 SKILL.md에 있음",
           "값이 오르내리는 무언가에 돈을 넣거나 뺄지" in skill)
     check("T4b", "guardrails.md에 발동 판정이 남아있지 않음",
-          "발동 조건" not in grd)
+          "발동 조건" not in grd and "돈을 넣거나 뺄지" not in grd)
+    check("T4f", "4단계 대조 결과를 통과 시에도 기록", "투자 대조:" in skill and "투자 대조:" in out)
+    check("T4g", "아티팩트 템플릿에 투자 판정 칸", "투자 판정:" in out)
+    check("T4h", "렌즈 건너뛰기와 투자 판정을 구분", "렌즈를 건너뛰는 것과 투자 판정은 다른 문제다" in fw)
     check("T4c", "투자 판정 결과를 기록", "투자 판정:" in skill)
     check("T4d", "4단계는 체크리스트 0번 고정 항목", "0번 고정 항목" in skill)
     check("T4e", "뒤집기는 한 방향만", "안 걸림 → 걸림" in skill)
