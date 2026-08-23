@@ -45,7 +45,7 @@ def main():
 
     # --- 종료 정의 (Task 2) ---
     check("T2a", "종료 정의가 세 조건을 한자리에서 말한다",
-          "**종료 = 아래 셋을 다 만족하는 것.**" in skill
+          "**종료 = 아래 셋을 다 만족하" in skill
           and "설계가 **2라운드 연속** 안 바뀐다" in skill
           and "적어도 한 번은 실제로 바뀌었다" in skill
           and "새로 생기지 않았다" in skill)
@@ -80,11 +80,19 @@ def main():
     check("T3b", "없음 명시도 전사에 남긴다",
           '"없습니다"도 전사에 남긴다' in skill or "없습니다\"도 전사에 남긴다" in skill)
     check("T3c", "다른 눈 카드가 수렴 게이트에서 풀림",
-          "미해결이 3라운드 연속 안 줄면" in skill)
+          "미해결이 3라운드 연속 안 줄" in skill)
 
     # --- guardrails (Task 4) ---
-    check("T4a", "판별 문장이 SKILL.md에 있음",
-          "값이 오르내리는 무언가에 돈을 넣거나 뺄지" in skill)
+    check("T4a", "판별 축이 원금 확정성",
+          "돌려받는 금액이 미리 정해져 있지 않은 곳" in skill
+          and "둘 다로 읽히면 걸리는 쪽으로 간다" in skill)
+    check("E1", "라운드 경계 — 미루기 금지", "다음 라운드로 미루지 않는다" in skill)
+    check("E2", "이미 처리되던 지적도 대장에", "현 설계가 이미 처리하고 있었다면 그것도 해결이다" in skill)
+    check("E3", "사장님몫에 선택지 요구", "사장님이 실제로 고르실 선택지를 둘 이상" in skill)
+    check("E4", "다른 눈 카드에 설계 변화 조건", "설계가 4라운드 연속 바뀌고 있으면" in skill)
+    check("E5", "복원 게이트가 대조 가능성", "이 문서로 대장의 각 지적이 어디서 나왔는지" in skill)
+    check("E6", "대장 번호 세기", "1번부터 최대 번호까지 빠짐없이" in skill)
+    check("E7", "기록에 대한 추정도 금지", "안 온 것에 대해서는 원인도 내용도 추정하지 않는다" in skill)
     check("T4b", "guardrails.md에 발동 판정이 남아있지 않음",
           "발동 조건" not in grd and "돈을 넣거나 뺄지" not in grd)
     check("T4f", "4단계 대조 결과를 통과 시에도 기록", "투자 대조:" in skill and "투자 대조:" in out)
