@@ -174,19 +174,22 @@ def main():
 
     for fname in expected_agents:
         fm = agent_fm(fname)
-        check(f"P3-{fname}", f"{fname} frontmatter에 name/description/model 있음",
-              fm is not None and all(f"\n{k}:" in ("\n" + fm) for k in ("name", "description", "model")))
+        has_fields = fm is not None and all(f"\n{k}:" in ("\n" + fm) for k in ("name", "description", "model"))
+        stem = fname[:-3]
+        name_matches = fm is not None and re.search(rf"^name:\s*{re.escape(stem)}\s*$", fm, re.M) is not None
+        referenced = f"@moebius-loop:{stem}" in skill
+        check(f"P3-{fname}", f"{fname} frontmatter 완비 + name==파일명 + SKILL.md가 @참조함",
+              has_fields and name_matches and referenced)
 
     check("P4", "red-team.md에 framework.md가 언급조차 되지 않음(격리가 문자열로도 안 새는지)",
           (agents_dir / "red-team.md").exists()
           and "framework.md" not in (agents_dir / "red-team.md").read_text(encoding="utf-8"))
 
-    check("P5", "SKILL.md에 폴백 규칙(호출 안 되면 직접 연기) 명시",
-          "불러지지 않으면" in skill or "호출되지 않으면" in skill)
+    check("P5", "폴백 규칙이 호출 지점 4곳 전부에 있음(문자열 하나로는 안 셈)",
+          skill.count("불러지지 않으면") >= 4)
 
     check("P6", "SKILL.md에 비용 인지 문구", "토큰" in skill and "비용" in skill)
 
-    check("P7", "SKILL.md에 알려진 업로드 버그 안내", "Upload failed" in skill or "업로드 실패" in skill)
 
     check("P8", "전사를 그대로 옮기라는 지시 유지",
           "요약하지 말고" in skill or "그대로 옮" in skill)

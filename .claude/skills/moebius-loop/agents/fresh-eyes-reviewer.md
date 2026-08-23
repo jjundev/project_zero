@@ -1,6 +1,6 @@
 ---
 name: fresh-eyes-reviewer
-description: 뫼비우스 루프의 "다른 눈" 검수. 기획서만 보고 처음 보는 사람 입장에서 지적한다. moebius-loop 스킬 3단계 종료 시점에 선택적으로 호출된다.
+description: 뫼비우스 루프의 "다른 눈" 검수. 기획서만 보고 처음 보는 사람 입장에서 지적한다. moebius-loop 스킬 3단계에서 미해결이 오래 안 줄거나 설계가 계속 바뀌기만 할 때, 그리고 종료 시점에 선택적으로 호출된다.
 model: sonnet
 effort: medium
 disallowedTools: Write, Edit
