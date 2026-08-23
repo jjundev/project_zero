@@ -4,12 +4,14 @@
 사용: python3 tools/check_moebius_skill.py
 종료코드: 0 = 전부 통과, 1 = 실패 있음
 """
+import json
 import pathlib
 import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SK = ROOT / ".claude" / "skills" / "moebius-loop"
+PLUGIN = ROOT / ".claude" / "skills" / "moebius-loop"
+SK = PLUGIN / "skills" / "moebius-loop"
 
 results = []
 
@@ -135,18 +137,59 @@ def main():
           f"{len(m.group(1).strip())}자" if m else "없음")
 
     import zipfile
-    z = ROOT / "dist" / "moebius-loop.zip"
+    z = ROOT / "dist" / "moebius-loop.plugin"
     if not z.exists():
-        check("G3", "배포 zip이 라이브 파일과 동일", False, "zip 없음")
+        check("G3", "배포 plugin 패키지가 라이브 파일과 동일", False, "plugin 없음(아직 재패키징 전이면 정상)")
     else:
         with zipfile.ZipFile(z) as zf:
             names = {n for n in zf.namelist() if not n.endswith("/")}
-            expected = {"moebius-loop/SKILL.md"} | {
-                f"moebius-loop/references/{f.name}" for f in (SK / "references").glob("*.md")}
+            expected = set()
+            for f in PLUGIN.rglob("*"):
+                if f.is_file() and ".DS_Store" not in f.name:
+                    expected.add(f"moebius-loop/{f.relative_to(PLUGIN)}")
             same = names == expected and all(
-                zf.read(n) == (SK.parent / n).read_bytes() for n in names)
-        check("G3", "배포 zip이 라이브 파일과 바이트 동일", same,
-              f"zip={sorted(names)}")
+                zf.read(n) == (PLUGIN.parent / n).read_bytes() for n in names)
+        check("G3", "배포 plugin 패키지가 라이브 파일과 바이트 동일", same,
+              f"zip 파일수={len(names)} 기대={len(expected)}")
+
+    # --- 플러그인 구조 ---
+    check("P1", ".claude-plugin/plugin.json 존재 및 name=moebius-loop",
+          (PLUGIN / ".claude-plugin" / "plugin.json").exists()
+          and json.loads((PLUGIN / ".claude-plugin" / "plugin.json").read_text()).get("name") == "moebius-loop")
+
+    agents_dir = PLUGIN / "agents"
+    expected_agents = {"red-team.md", "user-advocate.md", "quality-reviewer.md",
+                        "spec-compliance-reviewer.md", "fresh-eyes-reviewer.md"}
+    found_agents = {f.name for f in agents_dir.glob("*.md")} if agents_dir.exists() else set()
+    check("P2", "서브에이전트 5개 전부 존재", expected_agents <= found_agents,
+          f"없음: {expected_agents - found_agents}")
+
+    def agent_fm(name):
+        fp = agents_dir / name
+        if not fp.exists():
+            return None
+        s = fp.read_text(encoding="utf-8")
+        m = re.match(r"\A---\n(.*?)\n---\n", s, re.S)
+        return m.group(1) if m else None
+
+    for fname in expected_agents:
+        fm = agent_fm(fname)
+        check(f"P3-{fname}", f"{fname} frontmatter에 name/description/model 있음",
+              fm is not None and all(f"\n{k}:" in ("\n" + fm) for k in ("name", "description", "model")))
+
+    check("P4", "red-team.md에 framework.md가 언급조차 되지 않음(격리가 문자열로도 안 새는지)",
+          (agents_dir / "red-team.md").exists()
+          and "framework.md" not in (agents_dir / "red-team.md").read_text(encoding="utf-8"))
+
+    check("P5", "SKILL.md에 폴백 규칙(호출 안 되면 직접 연기) 명시",
+          "불러지지 않으면" in skill or "호출되지 않으면" in skill)
+
+    check("P6", "SKILL.md에 비용 인지 문구", "토큰" in skill and "비용" in skill)
+
+    check("P7", "SKILL.md에 알려진 업로드 버그 안내", "Upload failed" in skill or "업로드 실패" in skill)
+
+    check("P8", "전사를 그대로 옮기라는 지시 유지",
+          "요약하지 말고" in skill or "그대로 옮" in skill)
 
     failed = [r for r in results if not r[2]]
     for cid, desc, ok, detail in results:
