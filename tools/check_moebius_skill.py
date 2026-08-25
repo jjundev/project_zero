@@ -146,7 +146,7 @@ def main():
     n_lines = len(skill.splitlines())
     check("G1", "SKILL.md 500줄 이내", n_lines <= 500, f"{n_lines}줄")
     m = re.search(r"^description:\s*(.+)$", skill, re.M)
-    check("G2", "description 365자 고정", m and len(m.group(1).strip()) == 365,
+    check("G2", "description 254자 고정", m and len(m.group(1).strip()) == 254,
           f"{len(m.group(1).strip())}자" if m else "없음")
 
     import zipfile
