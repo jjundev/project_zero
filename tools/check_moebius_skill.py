@@ -124,6 +124,19 @@ def main():
     check("T6b", "범위표 아래 예시 문장 보존(감량 금지)",
           "오프라인 매장 운영, 조직 관리, 화면 UX" in fw)
 
+    # --- 2026-08-25 사장님 요구사항 (Task 7) ---
+    check("T7a", "outputs.md에 시각화 다이어그램(Mermaid) 섹션 존재",
+          "## 시각화 다이어그램" in out and "mermaid" in out)
+    check("T7b", "SKILL.md에 글과 그림 동시 산출 및 사전 보고(0.5단계) 명시",
+          "글과 그림" in skill and ("사전" in skill or "0.5" in skill))
+    check("T7c", "framework.md에 작전 기획 렌즈(CIA 208 / 국방부) 명시",
+          "작전" in fw or "CIA" in fw or "국방부" in fw)
+    check("T7d", "서브에이전트에 아부·동조 금지 지침 포함",
+          (PLUGIN / "agents" / "red-team.md").exists()
+          and ("아부" in (PLUGIN / "agents" / "red-team.md").read_text(encoding="utf-8")
+               or "동조" in (PLUGIN / "agents" / "red-team.md").read_text(encoding="utf-8")
+               or "거짓말" in (PLUGIN / "agents" / "red-team.md").read_text(encoding="utf-8")))
+
     # --- 금지 패턴 ---
     for label, text in (("SKILL.md", skill), ("framework.md", fw),
                         ("outputs.md", out), ("guardrails.md", grd)):
@@ -133,7 +146,7 @@ def main():
     n_lines = len(skill.splitlines())
     check("G1", "SKILL.md 500줄 이내", n_lines <= 500, f"{n_lines}줄")
     m = re.search(r"^description:\s*(.+)$", skill, re.M)
-    check("G2", "description 365자 고정", m and len(m.group(1).strip()) == 365,
+    check("G2", "description 254자 고정", m and len(m.group(1).strip()) == 254,
           f"{len(m.group(1).strip())}자" if m else "없음")
 
     import zipfile
